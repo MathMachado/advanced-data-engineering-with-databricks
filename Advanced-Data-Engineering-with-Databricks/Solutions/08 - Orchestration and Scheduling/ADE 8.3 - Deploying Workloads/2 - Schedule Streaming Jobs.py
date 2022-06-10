@@ -138,9 +138,9 @@ date_lookup_df = spark.table("date_lookup").select("date", "week_part")
 
 def process_bronze(source, table_name, checkpoint, once=False, processing_time="5 seconds"):
     from pyspark.sql import functions as F
-    
+
     schema = "key BINARY, value BINARY, topic STRING, partition LONG, offset LONG, timestamp LONG"
-    
+
     data_stream_writer = (spark
             .readStream
             .format("cloudFiles")
@@ -154,7 +154,7 @@ def process_bronze(source, table_name, checkpoint, once=False, processing_time="
             .partitionBy("topic", "week_part")
             .queryName("bronze")
          )
-    
+
     if once == True:
         return data_stream_writer.trigger(availableNow=True).table(table_name)
     else:
@@ -215,7 +215,7 @@ class Upsert:
 # heart_rate_silver
 def heart_rate_silver(source_table="bronze", once=False, processing_time="10 seconds"):
     from pyspark.sql import functions as F
-    
+
     query = """
         MERGE INTO heart_rate_silver a
         USING heart_rate_updates b
@@ -224,7 +224,7 @@ def heart_rate_silver(source_table="bronze", once=False, processing_time="10 sec
         """
 
     streamingMerge=Upsert(query, "heart_rate_updates")
-    
+
     data_stream_writer = (spark
         .readStream
         .option("ignoreDeletes", True)
@@ -240,7 +240,7 @@ def heart_rate_silver(source_table="bronze", once=False, processing_time="10 sec
         .option("checkpointLocation", f"{DA.paths.checkpoints}/heart_rate_silver")
         .queryName("heart_rate_silver")
     )
-  
+
     if once == True:
         return data_stream_writer.trigger(availableNow=True).start()
     else:
@@ -252,7 +252,7 @@ def heart_rate_silver(source_table="bronze", once=False, processing_time="10 sec
 # workouts_silver
 def workouts_silver(source_table="bronze", once=False, processing_time="15 seconds"):
     from pyspark.sql import functions as F
-    
+
     query = """
         MERGE INTO workouts_silver a
         USING workout_updates b
@@ -261,7 +261,7 @@ def workouts_silver(source_table="bronze", once=False, processing_time="15 secon
         """
 
     streamingMerge=Upsert(query, "workout_updates")
-    
+
     data_stream_writer = (spark
         .readStream
         .option("ignoreDeletes", True)
@@ -350,7 +350,7 @@ def users_silver(source_table="bronze", once=False, processing_time="30 seconds"
         .option("checkpointLocation", f"{DA.paths.checkpoints}/users")
         .queryName("users")
     )
-    
+
     if once == True:
         return data_stream_writer.trigger(availableNow=True).start()
     else:

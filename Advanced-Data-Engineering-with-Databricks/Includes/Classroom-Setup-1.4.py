@@ -19,7 +19,6 @@ def create_sensors_prod():
 
     numFiles=3
     numRows=1000
-    fileID = 0
     deviceTypes = ["A", "B", "C", "D"]
 
     spark.conf.set("spark.databricks.io.cache.enabled", "false")
@@ -32,7 +31,7 @@ def create_sensors_prod():
         USING DELTA LOCATION '{DA.paths.working_dir}/prod/sensors'
     """);
 
-    for i in range(numFiles):
+    for fileID, _ in enumerate(range(numFiles)):
         startTime=int(time.time()*1000)
         timestamp = startTime + (fileID * 60000) + np.random.randint(-10000, 10000, size=numRows)
         deviceId = np.random.randint(0, 100, size=numRows)
@@ -44,8 +43,6 @@ def create_sensors_prod():
 
         tempDF = spark.createDataFrame(pd.DataFrame(data=zip(*data), columns = columns))
         tempDF.write.format("delta").mode("append").saveAsTable(DA.sensors_prod_tbl)
-        fileID+=1
-    
     total = spark.read.table(DA.sensors_prod_tbl).count()
     print(f"({int(time.time())-start} seconds, {total:,} records)")
 

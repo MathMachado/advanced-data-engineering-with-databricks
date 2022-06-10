@@ -118,7 +118,7 @@ def display_delta_log(table, version=None):
         version = spark.conf.get("spark.databricks.delta.lastCommitVersionInSession")
     version_str = str(int(version)).zfill(20)
     file = f"{DA.paths.user_db}/{table}/_delta_log/{version_str}.json"
-    print("Showing: "+file)
+    print(f"Showing: {file}")
     display(spark.read.json(file))
 
 # COMMAND ----------

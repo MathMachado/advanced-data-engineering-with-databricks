@@ -11,7 +11,8 @@ class Paths():
 
     def print(self, padding="  "):
         max_key_len = 0
-        for key in self.__dict__: max_key_len = len(key) if len(key) > max_key_len else max_key_len
+        for key in self.__dict__:
+            max_key_len = max(len(key), max_key_len)
         for key in self.__dict__:
             label = f"{padding}DA.paths.{key}:"
             print(label.ljust(max_key_len+13) + DA.paths.__dict__[key])
@@ -22,12 +23,12 @@ class Paths():
 class DBAcademyHelper():
     def __init__(self, lesson):
         import re, time
-        
-        assert lesson is not None, f"The lesson must be specified"
+
+        assert lesson is not None, "The lesson must be specified"
 
         self.initialized = False
         self.start = int(time.time())
-        
+
         self.course_name = "adewd"
         self.lesson = lesson.lower()
 
@@ -39,7 +40,7 @@ class DBAcademyHelper():
         # self.source_db_name = None
 
         self.working_dir_prefix = f"dbfs:/user/{self.username}/dbacademy/{self.course_name}"
-        
+
         clean_lesson = re.sub("[^a-zA-Z0-9]", "_", self.lesson)
         working_dir = f"{self.working_dir_prefix}/{self.lesson}"
         self.paths = Paths(working_dir, clean_lesson)
@@ -66,18 +67,23 @@ class DBAcademyHelper():
             except: pass # Bury any exceptions
             try: stream.awaitTermination()
             except: pass # Bury any exceptions
-        
-        if spark.sql(f"SHOW DATABASES").filter(f"databaseName == '{self.db_name}'").count() == 1:
+
+        if (
+            spark.sql("SHOW DATABASES")
+            .filter(f"databaseName == '{self.db_name}'")
+            .count()
+            == 1
+        ):
             print(f"Dropping the database \"{self.db_name}\"")
             spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
-        
+
         if self.paths.exists(self.paths.working_dir):
             print(f"Removing the working directory \"{self.paths.working_dir}\"")
             dbutils.fs.rm(self.paths.working_dir, True)
-        
+
         # FIXME: Commented out because it might break during parallel testing.
         # self.databricks_api('POST', '2.0/secrets/scopes/delete', on_error="ignore", scope="DA-ADE3.03")
-        
+
         # Make sure that they were not modified
         if self.initialized: validate_datasets()
 
@@ -123,10 +129,11 @@ class DBAcademyHelper():
             requests.HTTPError: If the API returns an error and on_error='raise'.
         """
         import requests, json
-        url = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiUrl().getOrElse(None)+"/api/"
+        url = f"{dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiUrl().getOrElse(None)}/api/"
+
         token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
         web = requests.Session()
-        web.headers = {'Authorization': 'Bearer ' + token, 'Content-Type': 'text/json'}
+        web.headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'text/json'}
         if http_method == 'GET':
             params = {k: str(v).lower() if isinstance(value, bool) else v for k,v in data.items()}
             resp = web.request(http_method, url + path, params = params)

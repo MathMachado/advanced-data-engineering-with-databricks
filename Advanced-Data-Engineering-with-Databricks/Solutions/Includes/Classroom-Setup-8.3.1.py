@@ -9,9 +9,9 @@
 
 def create_bronze_dev_table():
     import time
-    
+
     start = int(time.time())
-    print(f"Creating bronze_dev", end="...")
+    print("Creating bronze_dev", end="...")
 
     spark.sql(f"""
       CREATE TABLE bronze_dev
@@ -20,7 +20,7 @@ def create_bronze_dev_table():
     """)
 
     total = spark.read.table("bronze_dev").count()
-    assert total == 10841978, f"Expected 10,841,978 records, found {total:,} in bronze_dev"    
+    assert total == 10841978, f"Expected 10,841,978 records, found {total:,} in bronze_dev"
     print(f"({int(time.time())-start} seconds / {total:,} records)")
 
 # COMMAND ----------
@@ -47,7 +47,7 @@ class BronzeDataStreamFactory:
             print("Loading all batches to producer_30m", end="...")
             total = self.load_batch(producer_df.filter(F.col("arrival") >= arrival_min+batch))
             print(f"({int(time.time()*1000)-start:,} ms, {total:,} records)")
-            
+
         else:
             while arrival_min+batch < arrival_max+1:
                 start = int(time.time()*1000)
