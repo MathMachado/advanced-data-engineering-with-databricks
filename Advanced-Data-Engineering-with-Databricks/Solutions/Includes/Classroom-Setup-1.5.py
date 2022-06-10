@@ -9,9 +9,9 @@
 
 def create_gym_logs():
     import time
-    
+
     start = int(time.time())
-    print(f"Creating gym_mac_logs dataset", end="...")
+    print("Creating gym_mac_logs dataset", end="...")
 
     DA.hidden.gym_mac_logs_source = f"{DA.hidden.datasets}/gym-logs"
     DA.paths.gym_mac_logs_json = f"{DA.paths.working_dir}/gym_mac_logs.json"
@@ -19,10 +19,10 @@ def create_gym_logs():
     # Copies files to demo directory
     files = dbutils.fs.ls(DA.hidden.gym_mac_logs_source)
     # All files except those in 2019-12-10 where 2019-12-0 includes 1-9
-    for curr_file in [file.name for file in files if file.name.startswith(f"2019120")]:
+    for curr_file in [file.name for file in files if file.name.startswith("2019120")]:
         # print(f"...adding file {curr_file}")
         dbutils.fs.cp(f"{DA.hidden.gym_mac_logs_source}/{curr_file}", f"{DA.paths.gym_mac_logs_json}/{curr_file}")
-        
+
     print(f"({int(time.time())-start} seconds)")
 
 # COMMAND ----------
@@ -41,25 +41,25 @@ class GymMacStreamingFactory:
     
     def load(self, continuous=False):
         import time
-        
+
         total = 0
         start = int(time.time())
         files = dbutils.fs.ls(self.source)
-        
+
         if self.curr_day > 16:
             print("Data source exhausted\n")
-            
+
         elif continuous == True:
-            print(f"Loading all gym_mac_log files", end="...")
+            print("Loading all gym_mac_log files", end="...")
             while self.curr_day <= 16:
                 total += self.load_day(files)
                 self.curr_day += 1
-            
+
         else:
             print(f"Loading gym_mac_logs for day #{self.curr_day}", end="...")
             total = self.load_day(files)
             self.curr_day += 1
-            
+
         print(f"({int(time.time())-start} seconds, {total:,} files)")
 
 # COMMAND ----------

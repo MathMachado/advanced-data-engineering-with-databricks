@@ -171,9 +171,9 @@ import py4j
 
 try:
     spark.sql("SHOW GRANT ON VIEW gym_user_stats")
-    
+
 except py4j.protocol.Py4JJavaError as e:
-    print("Error: " + e.java_exception.getMessage())
+    print(f"Error: {e.java_exception.getMessage()}")
     print("Solution: Consider enabling Table Access Control to demonstrate this feature.")
 
 # COMMAND ----------
@@ -187,9 +187,9 @@ except py4j.protocol.Py4JJavaError as e:
 
 try:
     spark.sql("SHOW GRANT ON TABLE bronze")
-    
+
 except py4j.protocol.Py4JJavaError as e:
-    print("Error: " + e.java_exception.getMessage())
+    print(f"Error: {e.java_exception.getMessage()}")
     print("Solution: Consider enabling Table Access Control to demonstrate this feature.")
 
 # COMMAND ----------

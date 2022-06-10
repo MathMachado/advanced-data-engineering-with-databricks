@@ -12,8 +12,8 @@ def create_raw_data():
     from pyspark.sql import functions as F
 
     start = int(time.time())
-    print(f"Creating raw_data", end="...")
-    
+    print("Creating raw_data", end="...")
+
     (spark.read
           .load(f"{DA.hidden.datasets}/bronze")
           .select(F.col("key").cast("string").alias("key"), "value", "topic", "partition", "offset", "timestamp")
@@ -28,7 +28,7 @@ def create_raw_data():
     # spark.read.format("parquet").load(f"{DA.paths.working_dir}/raw_parquet").createOrReplaceTempView("raw_data")
 
     total = spark.read.table("raw_data").count()
-    assert total == 6443331, f"Expected 6,443,331 records, found {total:,} in raw_data"    
+    assert total == 6443331, f"Expected 6,443,331 records, found {total:,} in raw_data"
     print(f"({int(time.time())-start} seconds / {total:,} records)")
     
 

@@ -169,21 +169,20 @@ def create_date_lookup():
     import time
 
     start = int(time.time())
-    print(f"Creating date_lookup", end="...")
+    print("Creating date_lookup", end="...")
 
     spark.sql(f"""
       CREATE OR REPLACE TABLE date_lookup
       SHALLOW CLONE delta.`{DA.hidden.datasets}/date-lookup`
       LOCATION '{DA.paths.user_db}/date_lookup'
     """)
-
 #     spark.sql(f"""
 #       CREATE TABLE date_lookup
 #       LOCATION '{DA.hidden.datasets}/date-lookup'
 #     """)
 
     total = spark.read.table("date_lookup").count()
-    assert total == 1096, f"Expected 1,096 records, found {total:,} in date_lookup"    
+    assert total == 1096, f"Expected 1,096 records, found {total:,} in date_lookup"
     print(f"({int(time.time())-start} seconds / {total:,} records)")
     
 None # Suppressing Output
@@ -193,14 +192,13 @@ None # Suppressing Output
 def _create_gym_mac_logs():
     import time
     start = int(time.time())
-    print(f"Creating gym_mac_logs", end="...")
+    print("Creating gym_mac_logs", end="...")
 
     spark.sql(f"""
       CREATE OR REPLACE TABLE gym_mac_logs
       SHALLOW CLONE delta.`{DA.hidden.datasets}/gym-mac-logs`
       LOCATION '{DA.paths.user_db}/gym_mac_logs'
     """)
-
 #     spark.sql(f"""
 #       CREATE TABLE gym_mac_logs
 #       LOCATION '{DA.hidden.datasets}/gym-mac-logs'
@@ -216,23 +214,22 @@ DA.create_gym_mac_logs = _create_gym_mac_logs
 
 def _create_user_lookup():
     import time
-    
+
     start = int(time.time())
-    print(f"Creating user_lookup", end="...")
+    print("Creating user_lookup", end="...")
 
     spark.sql(f"""
       CREATE OR REPLACE TABLE user_lookup
       SHALLOW CLONE delta.`{DA.hidden.datasets}/user-lookup`
       LOCATION '{DA.paths.user_db}/user_lookup'
     """)
-
 #     spark.sql(f"""
 #       CREATE TABLE user_lookup
 #       LOCATION '{DA.hidden.datasets}/user-lookup'
 #     """)
 
-    total = spark.sql(f"SELECT * FROM user_lookup").count()
-    assert total == 100, f"Expected 100 records, found {total:,} in user_lookup"    
+    total = spark.sql("SELECT * FROM user_lookup").count()
+    assert total == 100, f"Expected 100 records, found {total:,} in user_lookup"
     print(f"({int(time.time())-start} seconds / {total:,} records)")    
     
 DA.create_user_lookup = _create_user_lookup
@@ -323,10 +320,10 @@ None # Suppressing Output
 
 def _create_partitioned_bronze_table():
     import time
-    
+
     start = int(time.time())
-    print(f"Creating bronze", end="...")
-    
+    print("Creating bronze", end="...")
+
     (spark.read
           .load(f"{DA.hidden.datasets}/bronze")
           .write
@@ -335,7 +332,7 @@ def _create_partitioned_bronze_table():
           .saveAsTable("bronze"))
 
     total = spark.read.table("bronze").count()
-    assert total == 10841978, f"Expected 10,841,978 records, found {total:,} in bronze"    
+    assert total == 10841978, f"Expected 10,841,978 records, found {total:,} in bronze"
     print(f"({int(time.time())-start} seconds / {total:,} records)")
 
 DA.create_partitioned_bronze_table = _create_partitioned_bronze_table
@@ -344,18 +341,18 @@ DA.create_partitioned_bronze_table = _create_partitioned_bronze_table
 
 def _create_bronze_table():
     import time
-    
+
     start = int(time.time())
-    print(f"Creating bronze", end="...")
-    
+    print("Creating bronze", end="...")
+
     spark.sql(f"""
       CREATE TABLE bronze
       SHALLOW CLONE delta.`{DA.hidden.datasets}/bronze`
       LOCATION '{DA.paths.user_db}/bronze'
     """) 
-    
+
     total = spark.read.table("bronze").count()
-    assert total == 10841978, f"Expected 10,841,978 records, found {total:,} in bronze"    
+    assert total == 10841978, f"Expected 10,841,978 records, found {total:,} in bronze"
     print(f"({int(time.time())-start} seconds / {total:,} records)")
     
 DA.create_bronze_table = _create_bronze_table
@@ -778,8 +775,8 @@ def _process_user_bins():
     from pyspark.sql import functions as F
 
     start = int(time.time())
-    print(f"Processing user_bins table", end="...")
-    
+    print("Processing user_bins table", end="...")
+
     (spark.table("users")
          .join(
             spark.table("user_lookup")
@@ -796,7 +793,7 @@ def _process_user_bins():
         .option("path", f"{DA.paths.user_db}/user_bins")
         .mode("overwrite")
         .saveAsTable("user_bins"))
-    
+
     total = spark.read.table("user_bins").count()
     print(f"({int(time.time())-start} seconds / {total:,} records)")
     

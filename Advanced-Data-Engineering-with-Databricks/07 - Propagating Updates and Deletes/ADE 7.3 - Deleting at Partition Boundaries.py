@@ -71,7 +71,7 @@ total = (spark.table("bronze")
               .filter("topic='user_info'")
               .filter("week_part<='2019-48'")
               .count())
-         
+
 print(f"Total: {total}")
 
 # COMMAND ----------
@@ -346,7 +346,7 @@ query.awaitTermination()
 users_log_path = f"{DA.paths.user_db}/users/_delta_log"
 files = dbutils.fs.ls(users_log_path)
 
-max_version = max([file.name for file in files if file.name.endswith(".json")])
+max_version = max(file.name for file in files if file.name.endswith(".json"))
 display(spark.read.json(f"{users_log_path}/{max_version}"))
 
 # COMMAND ----------
